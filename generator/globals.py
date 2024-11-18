@@ -5,10 +5,12 @@ from generator.helpers import load_actors
 settings = config_load('settings.ini', 'generator')
 actor_library = load_actors('actors.ini')
 
-icon_admin = "🛠️"
+icon_admin = "👑"
+icon_manager = "🛠️"
 # icon_user = "🧍"
 icon_user = "👷‍♂️"
 icon_custom = '👩‍🚀'
+
 
 admin_global = {
     "id": "Admin",

@@ -687,7 +687,7 @@ def graph_create_elements(machines):
     data["_root"] = GraphElement("root", "Infrastruktur", '')
     data["_root"].add_role(f'{icon_admin}{admin_global["name"]}')
     if settings["manager_schichtleitung"] == True:
-        data["_root"].add_role(f'{icon_admin}{manager_schichtleitung["name"]}')
+        data["_root"].add_role(f'{icon_manager}{manager_schichtleitung["name"]}')
 
     for key, m in machines.items():
 
@@ -698,7 +698,7 @@ def graph_create_elements(machines):
         if domain_id not in data.keys():
             data[f'{domain_id}'] = GraphElement(domain_id, domain["name"], 'root')
 
-            data[domain_id].add_role(f'{icon_admin}{m.get_domain_manager()["name"]}')
+            data[domain_id].add_role(f'{icon_manager}{m.get_domain_manager()["name"]}')
 
         # Area
         area = m.get_area()
@@ -707,7 +707,7 @@ def graph_create_elements(machines):
         if area_id not in data.keys():
             data[f'{area_id}'] = GraphElement(area_id, area["name"], domain_id)
 
-            data[area_id].add_role(f'{icon_admin}{m.get_area_manager()["name"]}')
+            data[area_id].add_role(f'{icon_manager}{m.get_area_manager()["name"]}')
             data[area_id].add_role(f'{icon_user}{m.get_area_user()["name"]}')
 
         # Subarea
@@ -718,7 +718,7 @@ def graph_create_elements(machines):
             if subarea_id not in data.keys():
                 data[f'{subarea_id}'] = GraphElement(subarea_id, subarea["name"], area_id)
 
-                data[subarea_id].add_role(f'{icon_admin}{m.get_subarea_manager()["name"]}')
+                data[subarea_id].add_role(f'{icon_manager}{m.get_subarea_manager()["name"]}')
                 data[subarea_id].add_role(f'{icon_user}{m.get_subarea_user()["name"]}')
 
         # Machine
@@ -784,9 +784,19 @@ style filler_$id_2 fill: none, stroke: none
 filler_$id_1~~~~~filler_$id_2
 '''
 
+    legend = f'''
+subgraph legende["<b>Legende</b><p style="text-align:left;">{icon_admin} = Administrator
+{icon_manager} = Manager
+{icon_user} = Benutzer
+{icon_custom} = Benutzer (Alternativrolle)"]
+end'''
+
     linedata.append('%%{init: {"flowchart" : {"curve" : "linear"}}}%%')
     linedata.append(' ')
     linedata.append('flowchart TD')
+    linedata.append(' ')
+    linedata.append(' ')
+    linedata.append(legend)
     linedata.append(' ')
     linedata.append(' ')
 
