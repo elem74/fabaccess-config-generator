@@ -15,8 +15,6 @@ class Domain:
         perm_handle = domain_id + '.'
         id_handle = perm_handle.replace('.', '_')
 
-        perms_manager = [perm_handle + '*']
-
         self.domain = {
             "id": domain_id,
             "name": domain_name
@@ -24,15 +22,28 @@ class Domain:
 
         self.domain_manager = {
             "id": id_handle + 'manager',
-            "name": string_managerhandle + domain_name,
-            "perms": perms_manager
+            "name": '_' + string_managerhandle + domain_name,
+            "perms": perm_handle + '*'
         }
+
+        self.domain_user = {
+            "id": id_handle + 'user',
+            "name": '_' + string_userhandle + domain_name,
+            "perms": []
+        }
+
 
     def get_domain(self):
         return self.domain
 
+    def get_domain_perms(self):
+        return self.domain_manager["perms"]
+
     def get_domain_manager(self):
         return self.domain_manager
+
+    def get_domain_user(self):
+        return self.domain_user
 
 
 class Area(Domain):
@@ -274,7 +285,7 @@ class GraphElement:
 # Maschinen aus der CSV-importieren
 def import_machines(file):
     machines = {}
-    data = csv_listdict(file, csv_match)
+    data = csv_listdict(file, settings['csv_delimiter'], csv_match)
 
     count = 2
     print(f'{"Zeile": ^8} | {"Status": ^24} | {"Zusatzinformation": ^20}')
@@ -355,28 +366,28 @@ def generate_roles(machines):
     if roledata["id"] not in roles.keys():
         roles[roledata["id"]] = roledata
 
-
-    # Schichtleitung anlegen
-    if settings["manager_schichtleitung"] == True:
-        roledata = manager_schichtleitung
-
-        if roledata["id"] not in roles.keys():
-            roles[roledata["id"]] = roledata
-
-
     # Domänen durchlaufen
     for id, m in machines.items():
 
-        # Domänen-Berechtigung an Manager & Schichtleitung vergeben
-        roledata = m.get_domain_manager()
-        for perm in roledata["perms"]:
-            if perm not in roles[admin_global["id"]]["perms"]:
-                roles[admin_global["id"]]["perms"].append(perm)
+        # Domänen-Berechtigung an Admin & Manager vergeben
 
-        if settings["manager_schichtleitung"] == True:
-            for perm in roledata["perms"]:
-                if perm not in roles[manager_schichtleitung["id"]]["perms"]:
-                    roles[manager_schichtleitung["id"]]["perms"].append(perm)
+        # 2do: Admin - Überflüssige Berechtigungen?
+        # for perm in roledata["perms"]:
+
+        #     if perm not in roles[admin_global["id"]]["perms"]:
+        #         roles[admin_global["id"]]["perms"].append(perm)
+
+        # 2do - end
+
+        perm = m.get_domain_perms()
+
+        if perm not in roles[admin_global["id"]]["perms"]:
+            roles[admin_global["id"]]["perms"].append(perm)
+
+        if settings["manager_domain"] == True:
+
+            if roledata["id"] not in roles.keys():
+                roles[roledata["id"]] = roledata
 
         # Manager: Domain
         if settings["multi_domains"] == True:
@@ -384,6 +395,10 @@ def generate_roles(machines):
 
             if roledata["id"] not in roles.keys():
                 roles[roledata["id"]] = roledata
+
+            for perm in roledata["perms"]:
+                if perm not in roles[manager_domain["id"]]["perms"]:
+                    roles[manager_domain["id"]]["perms"].append(perm)
 
         # Manager: Area
         if settings["manager_area"] == True:
@@ -403,30 +418,51 @@ def generate_roles(machines):
 
         # Benutzer: Daten abrufen
 
-        if m.has_customrole() == True:
-            # Extrarolle
-            roledata = m.get_customrole()
-
-            if roledata["id"] in roles.keys():
-                # Extrarolle vorhanden --> Berechtigungen hinzufügen
-                for p in roledata["perms"]:
-                    roles[roledata["id"]]["perms"].append(p)
+        if settings["domain_user"] == True:
+            # Domäne-Benutzer
+            roledata = m.get_domain_user()
 
         else:
+            # Kein Domäne-Benutzer
+            if m.has_customrole() == True:
+                # Extrarolle
+                roledata = m.get_customrole()
 
-            if m.has_subarea() == True:
-                # Unterbereich
-                roledata = m.get_subarea_user()
+                if roledata["id"] in roles.keys():
+                    # Extrarolle vorhanden --> Berechtigungen hinzufügen
+                    for p in roledata["perms"]:
+                        roles[roledata["id"]]["perms"].append(p)
+
             else:
-                # Bereich
-                roledata = m.get_area_user()
 
-        # print_dict(roledata)
+                if m.has_subarea() == True:
+                    # Unterbereich
+                    roledata = m.get_subarea_user()
+                else:
+                    # Bereich
+                    roledata = m.get_area_user()
 
         # Benutzer: Hinzufügen
         if roledata["id"] not in roles.keys():
             roles[roledata["id"]] = roledata
+
+        # Domänen-Benutzer: Berechtigungen hinzufügen
+
+        if settings["domain_user"] == True:
+            if m.has_subarea() == True:
+                # Unterbereich
+                perms = m.get_subarea_user()["perms"]
+            else:
+                # Bereich
+                perms = m.get_area_user()["perms"]
+
+            for p in perms:
+                if p not in roles[roledata["id"]]["perms"]:
+                    roles[roledata["id"]]["perms"].append(p)
+
     
+    print_dict(roles)
+
     return roles
 
     
@@ -686,8 +722,8 @@ def graph_create_elements(machines):
     data = {}
     data["_root"] = GraphElement("root", "Infrastruktur", '')
     data["_root"].add_role(f'{icon_admin}{admin_global["name"]}')
-    if settings["manager_schichtleitung"] == True:
-        data["_root"].add_role(f'{icon_manager}{manager_schichtleitung["name"]}')
+    if settings["manager_domain"] == True:
+        data["_root"].add_role(f'{icon_manager}{manager_domain["name"]}')
 
     for key, m in machines.items():
 

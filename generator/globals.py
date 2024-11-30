@@ -18,7 +18,7 @@ admin_global = {
     "perms": ["bffh.users.manage", "bffh.users.info", "bffh.users.admin"]
 }
 
-manager_schichtleitung = {
+manager_domain = {
     "id": "_manager_schichtleitung",
     "name": "_Manager Schichtleitung",
     "perms": []

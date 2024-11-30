@@ -1,4 +1,4 @@
-__version__ = '2024.6'
+__version__ = '2024.12'
 
 import time
 time_start = time.perf_counter()
@@ -49,7 +49,7 @@ if settings["create_file_roles"] == True:
     content = generate_csv_roles(roles)
     write_file('output/roles.csv', content)
 
-if settings["fa_update_dhall"] == True:
+if settings["fa_dhall_update"] == True:
     print(' --- Aktualisierung der bffh.dhall')
     fa_dhall_file = settings["fa_dhall_file"]
 
@@ -65,7 +65,7 @@ if settings["fa_update_dhall"] == True:
     # Pfadangabe "fa_dhall_file" ist leer
     else:
         print('Einstellung "fa_dhall_file" ist leer, es wurde kein Pfad zur bffh.dhall angegeben.')
-        print('Bitte das Feld ausfüllen oder "fa_update_dhall" auf "False" setzen.')
+        print('Bitte das Feld ausfüllen oder "fa_dhall_update" auf "False" setzen.')
 
 # Mermaid-Code
 if settings["generate_mermaid"] == True:

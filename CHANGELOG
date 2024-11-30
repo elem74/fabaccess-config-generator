@@ -1,3 +1,15 @@
+2024.11
+- **Features**
+  - Neu: Option zur Erstellung eines Domänen-Managers. (`manager_domain`)
+  - Neu: Option zur Erstellung eines werkstattweiten Benutzers. (`domain_user`)
+  - Neu: Option zum Einstellen des CSV-Trennzeichens. (`csv_delimiter`)
+- **Konzeptionelle Änderungen**
+  -
+- **Umbenennungen**
+  - Die Einstellung `fa_update_dhall` heißt jetzt `fa_dhall_update`, damit ein einheitliches Benennungsschema mit der dazugehörigen Einstellungen `fa_dhall_file` gegeben ist.
+- **Weiteres**
+  - Admin-Berechtigungen wurden vollständig auf Wildcard-Zugriffsschema umgestellt. Zuvor wurden Berechtigungen für einzelne Bereiche vergeben.
+
 2024.6
 - **Diagrammerzeugung**
   - Das Diagramm enthält jetzt eine Icon-Legende
