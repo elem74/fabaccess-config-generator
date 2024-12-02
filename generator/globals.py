@@ -5,6 +5,11 @@ from generator.helpers import load_actors
 settings = config_load('settings.ini', 'generator')
 actor_library = load_actors('actors.ini')
 
+if settings["fa_dhall_create"] == False:
+    extraspace = '\t'
+else:
+    extraspace = ''
+
 icon_admin = "👑"
 icon_manager = "🛠️"
 # icon_user = "🧍"

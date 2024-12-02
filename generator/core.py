@@ -469,20 +469,29 @@ def generate_roles(machines):
 def generate_bffh_roles(roles):
 
     data = []
-    
-    # Rollen
-    data.append(space + 'roles = {')
 
+    # Anfang Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + 'roles = {')
+    else:
+        data.append('{')
+
+    # Inhalt
     for role in roles:
-        data.append(space * 2 + f'{role}' + ' = {')
-        data.append(space * 3 + 'permissions =  [')
+        data.append(space * 1 + extraspace + f'{role}' + ' =')
+        data.append(space * 1 + extraspace + '{')
+        data.append(space * 2 + extraspace + 'permissions =  [')
         for perm in roles[role]["perms"]:
             data.append(space * 4 + f'"{perm}",')
-        data.append(space * 3 + ']')
-        data.append(space * 2 + '},')
+        data.append(space * 2 + extraspace + ']')
+        data.append(space * 1 + extraspace + '},')
         data.append(' ')
     
-    data.append(space + '},')
+    # Ende Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + '},')
+    else:
+        data.append('}')
 
     return data
 
@@ -491,22 +500,34 @@ def generate_bffh_machines(machines):
 
     data = []
 
-    data.append(space + 'machines = {')
+    # Anfang Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + 'machines = {')
+    else:
+        data.append('{')
+
+    # Inhalt
     for id, m in machines.items():
         specs = m.get_machine()
-        data.append(space * 2 + f'{specs["fa_id"]}' + ' = {')
-        data.append(space * 3 + f'name = "{specs["name"]}",')
-        data.append(space * 3 + f'description = "{specs["desc"]}",')
-        data.append(space * 3 + f'wiki = "{specs["wikiurl"]}",')
-        data.append(space * 3 + f'category = "{specs["category"]}",')
+        data.append(space * 1 + extraspace + f'{specs["fa_id"]}' + ' =')
+        data.append(space * 1 + extraspace + '{')
+        data.append(space * 2 + extraspace + f'name = "{specs["name"]}",')
+        data.append(space * 2 + extraspace + f'description = "{specs["desc"]}",')
+        data.append(space * 2 + extraspace + f'wiki = "{specs["wikiurl"]}",')
+        data.append(space * 2 + extraspace + f'category = "{specs["category"]}",')
 
 
         for i in range(len(specs["perms"])):
-            data.append(space * 3 + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
+            data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
 
-        data.append(space * 2 + '},')
+        data.append(space * 1 + extraspace + '},')
         data.append(' ')
-    data.append(space + '},')
+
+    # Ende Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + '},')
+    else:
+        data.append('}')
 
     return data
 
@@ -515,8 +536,13 @@ def generate_bffh_actors(machines):
 
     data = []
 
-    data.append(space + 'actors = {')
+    # Anfang Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + 'actors = {')
+    else:
+        data.append('{')
 
+    # Inhalt
     for id, m in machines.items():
         specs = m.get_machine()
 
@@ -525,11 +551,11 @@ def generate_bffh_actors(machines):
 
             # 2do Actor Library Funktionalität
 
-            data.append(f'        {actor_handle} =')
-            data.append('        {')
-            data.append(f'           module = "{actor_library[specs["actor_type"]]["module"]}",')
-            data.append('            params =')
-            data.append('            {')
+            data.append(space * 1 + extraspace + f'{actor_handle} =')
+            data.append(space * 1 + extraspace + '{')
+            data.append(space * 2 + extraspace + f'module = "{actor_library[specs["actor_type"]]["module"]}",')
+            data.append(space * 2 + extraspace + 'params =')
+            data.append(space * 2 + extraspace + '{')
 
             # Aktor-ID der aktuellen Maschine speichern
             replace = {
@@ -539,11 +565,17 @@ def generate_bffh_actors(machines):
             for key, value in actor_library[specs["actor_type"]]["params"].items():
                     template = Template(value)
                     string = template.substitute(replace)
-                    data.append(f'                {key} = {string},')
-            data.append('            }')
-            data.append('        },')
+                    data.append(space * 3 + extraspace + f'{key} = {string},')
+
+            data.append(space * 2 + extraspace + '}')
+            data.append(space * 1 + extraspace + '},')
             data.append(' ')
-    data.append(space + '},    ')
+
+    # Ende Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + '},')
+    else:
+        data.append('}')
 
     return data
 
@@ -553,16 +585,25 @@ def generate_bffh_actorconnections(machines):
 
     data = []
 
-    data.append(space + 'actor_connections = [')
+    # Anfang Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + 'actor_connections = [')
+    else:
+        data.append('[')
 
+    # Inhalt
     for id, m in machines.items():
         specs = m.get_machine()
 
         if len(specs["actor_id"]) > 0 and len(specs["actor_type"]) > 0:
             actor_fullid = specs["actor_type"] + '_' + specs["actor_id"]
-            data.append(space * 2 + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
+            data.append(space * 1 + extraspace + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
 
-    data.append(space + '],')
+    # Ende Datenstruktur
+    if settings["fa_dhall_create"] == False:
+        data.append(space + '],')
+    else:
+        data.append(']')
 
     return data
 

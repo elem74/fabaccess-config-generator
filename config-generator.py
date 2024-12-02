@@ -67,6 +67,30 @@ if settings["fa_dhall_update"] == True:
         print('Einstellung "fa_dhall_file" ist leer, es wurde kein Pfad zur bffh.dhall angegeben.')
         print('Bitte das Feld ausfüllen oder "fa_dhall_update" auf "False" setzen.')
 
+if settings["fa_dhall_create"] == True:
+
+    fa_dhall_directory = settings["fa_dhall_directory"].replace('\\', '/')
+
+    # Rollen
+    target = fa_dhall_directory + '/' + 'roles.dhall'
+    target = target.replace('//', '/')
+    write_file(target, export_roles)
+
+    # Maschinen
+    target = fa_dhall_directory + '/' + 'machines.dhall'
+    target = target.replace('//', '/')
+    write_file(target, export_machines)
+
+    # Aktoren
+    target = fa_dhall_directory + '/' + 'actors.dhall'
+    target = target.replace('//', '/')
+    write_file(target, export_actors)
+
+    # Aktorenverbindung
+    target = fa_dhall_directory + '/' + 'actorconnections.dhall'
+    target = target.replace('//', '/')
+    write_file(target, export_actorconnections)
+
 # Mermaid-Code
 if settings["generate_mermaid"] == True:
     print(' --- Mermaid-Code erzeugen')
