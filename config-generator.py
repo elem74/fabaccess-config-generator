@@ -34,7 +34,7 @@ export_all = export_roles + export_machines + export_actors + export_actorconnec
 
 # Anzeigen der erzeugten Daten
 if settings["show_machines"] == True:
-    for m in machines:
+    for m in machines.values():
         display_machine(m)
 
 if settings["show_roles"] == True:

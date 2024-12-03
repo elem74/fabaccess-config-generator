@@ -7,7 +7,9 @@
   -
 - **Umbenennungen**
   - Die Einstellung `fa_update_dhall` heißt jetzt `fa_dhall_update`, damit ein einheitliches Benennungsschema mit der dazugehörigen Einstellungen `fa_dhall_file` gegeben ist.
-- **Weiteres**
+- **Bugfixes**
+  - Crash bei Verwendung der Einstellung `show_machines`
+- **Sonstiges**
   - Admin-Berechtigungen wurden vollständig auf Wildcard-Zugriffsschema umgestellt. Zuvor wurden Berechtigungen für einzelne Bereiche vergeben.
 
 2024.6
