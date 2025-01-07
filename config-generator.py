@@ -1,4 +1,4 @@
-__version__ = '2024.12'
+__version__ = '2025.1'
 
 import time
 time_start = time.perf_counter()

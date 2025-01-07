@@ -477,14 +477,21 @@ def generate_bffh_roles(roles):
         data.append('{')
 
     # Inhalt
-    for role in roles:
+    last = len(roles) - 1
+
+    for index, role in enumerate(roles):
         data.append(space * 1 + extraspace + f'{role}' + ' =')
         data.append(space * 1 + extraspace + '{')
         data.append(space * 2 + extraspace + 'permissions =  [')
         for perm in roles[role]["perms"]:
             data.append(space * 4 + f'"{perm}",')
         data.append(space * 2 + extraspace + ']')
-        data.append(space * 1 + extraspace + '},')
+
+        if index == last:
+            data.append(space * 1 + extraspace + '}')
+        else:
+            data.append(space * 1 + extraspace + '},')
+
         data.append(' ')
     
     # Ende Datenstruktur
@@ -507,7 +514,9 @@ def generate_bffh_machines(machines):
         data.append('{')
 
     # Inhalt
-    for id, m in machines.items():
+    last = len(machines) - 1
+
+    for index, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
         data.append(space * 1 + extraspace + f'{specs["fa_id"]}' + ' =')
         data.append(space * 1 + extraspace + '{')
@@ -520,7 +529,10 @@ def generate_bffh_machines(machines):
         for i in range(len(specs["perms"])):
             data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
 
-        data.append(space * 1 + extraspace + '},')
+        if index == last:
+            data.append(space * 1 + extraspace + '}')
+        else:
+            data.append(space * 1 + extraspace + '},')
         data.append(' ')
 
     # Ende Datenstruktur
@@ -543,7 +555,9 @@ def generate_bffh_actors(machines):
         data.append('{')
 
     # Inhalt
-    for id, m in machines.items():
+    last = len(machines) - 1
+
+    for index, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
         if len(specs["actor_id"]) > 0 and len(specs["actor_type"]) > 0:
@@ -568,7 +582,12 @@ def generate_bffh_actors(machines):
                     data.append(space * 3 + extraspace + f'{key} = {string},')
 
             data.append(space * 2 + extraspace + '}')
-            data.append(space * 1 + extraspace + '},')
+
+            if index == last:
+                data.append(space * 1 + extraspace + '}')
+            else:
+                data.append(space * 1 + extraspace + '},')
+
             data.append(' ')
 
     # Ende Datenstruktur
@@ -592,12 +611,18 @@ def generate_bffh_actorconnections(machines):
         data.append('[')
 
     # Inhalt
-    for id, m in machines.items():
+    last = len(machines) - 1
+
+    for index, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
         if len(specs["actor_id"]) > 0 and len(specs["actor_type"]) > 0:
             actor_fullid = specs["actor_type"] + '_' + specs["actor_id"]
-            data.append(space * 1 + extraspace + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
+
+            if index == last:
+                data.append(space * 1 + extraspace + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' }')
+            else:
+                data.append(space * 1 + extraspace + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
 
     # Ende Datenstruktur
     if settings["fa_dhall_create"] == False:

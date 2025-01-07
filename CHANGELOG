@@ -1,4 +1,4 @@
-2024.11
+2025.1
 - **Features**
   - Neu: Option zur Erstellung eines Domänen-Managers. (`manager_domain`)
   - Neu: Option zur Erstellung eines werkstattweiten Benutzers. (`domain_user`)
@@ -9,6 +9,7 @@
   - Die Einstellung `fa_update_dhall` heißt jetzt `fa_dhall_update`, damit ein einheitliches Benennungsschema mit der dazugehörigen Einstellungen `fa_dhall_file` gegeben ist.
 - **Bugfixes**
   - Crash bei Verwendung der Einstellung `show_machines`
+  - Korrektur der erzeugten dhall-Syntax. Der letzte Eintrag einer Datenstruktur wird nicht mehr mit einem Komma abgeschlossen.
 - **Sonstiges**
   - Admin-Berechtigungen wurden vollständig auf Wildcard-Zugriffsschema umgestellt. Zuvor wurden Berechtigungen für einzelne Bereiche vergeben.
 
