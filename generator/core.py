@@ -461,7 +461,7 @@ def generate_roles(machines):
                     roles[roledata["id"]]["perms"].append(p)
 
     
-    print_dict(roles)
+    # print_dict(roles)
 
     return roles
 
@@ -477,17 +477,26 @@ def generate_bffh_roles(roles):
         data.append('{')
 
     # Inhalt
-    last = len(roles) - 1
+    last_role = len(roles) - 1
 
-    for index, role in enumerate(roles):
+    for index_role, role in enumerate(roles):
         data.append(space * 1 + extraspace + f'{role}' + ' =')
         data.append(space * 1 + extraspace + '{')
         data.append(space * 2 + extraspace + 'permissions =  [')
-        for perm in roles[role]["perms"]:
-            data.append(space * 4 + f'"{perm}",')
+
+
+        last_perm = len(roles[role]["perms"]) - 1
+
+        for index_perm, (perm) in enumerate(roles[role]["perms"]):
+
+            if index_perm < last_perm:
+                data.append(space * 4 + f'"{perm}",')
+            else:
+                data.append(space * 4 + f'"{perm}"')
+
         data.append(space * 2 + extraspace + ']')
 
-        if index == last:
+        if index_role == last_role:
             data.append(space * 1 + extraspace + '}')
         else:
             data.append(space * 1 + extraspace + '},')
@@ -526,8 +535,18 @@ def generate_bffh_machines(machines):
         data.append(space * 2 + extraspace + f'category = "{specs["category"]}",')
 
 
-        for i in range(len(specs["perms"])):
-            data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
+        permcount = len(specs["perms"])
+        last = permcount - 1
+
+        for i in range(permcount):
+
+            if i < last:
+                data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
+            else:
+                data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}"')
+
+
+            index +=1
 
         if index == last:
             data.append(space * 1 + extraspace + '}')
@@ -555,9 +574,9 @@ def generate_bffh_actors(machines):
         data.append('{')
 
     # Inhalt
-    last = len(machines) - 1
+    last_actor = len(machines) - 1
 
-    for index, (id, m) in enumerate(machines.items()):
+    for index_actor, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
         if len(specs["actor_id"]) > 0 and len(specs["actor_type"]) > 0:
@@ -576,14 +595,20 @@ def generate_bffh_actors(machines):
                 "actor_id": specs["actor_id"]
             }
 
-            for key, value in actor_library[specs["actor_type"]]["params"].items():
+            last_param = len(actor_library[specs["actor_type"]]["params"]) - 1
+
+            for index_param, (key, value) in enumerate(actor_library[specs["actor_type"]]["params"].items()):
                     template = Template(value)
                     string = template.substitute(replace)
-                    data.append(space * 3 + extraspace + f'{key} = {string},')
+
+                    if index_param < last_param:
+                        data.append(space * 3 + extraspace + f'{key} = {string},')
+                    else:
+                        data.append(space * 3 + extraspace + f'{key} = {string}')
 
             data.append(space * 2 + extraspace + '}')
 
-            if index == last:
+            if index_actor == last_actor:
                 data.append(space * 1 + extraspace + '}')
             else:
                 data.append(space * 1 + extraspace + '},')
