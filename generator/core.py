@@ -523,9 +523,10 @@ def generate_bffh_machines(machines):
         data.append('{')
 
     # Inhalt
-    last = len(machines) - 1
+    last_machine = len(machines) - 1
 
-    for index, (id, m) in enumerate(machines.items()):
+    for index_machine, (id, m) in enumerate(machines.items()):
+
         specs = m.get_machine()
         data.append(space * 1 + extraspace + f'{specs["fa_id"]}' + ' =')
         data.append(space * 1 + extraspace + '{')
@@ -536,23 +537,24 @@ def generate_bffh_machines(machines):
 
 
         permcount = len(specs["perms"])
-        last = permcount - 1
+        last_perm = permcount - 1
 
         for i in range(permcount):
 
-            if i < last:
+            if i < last_perm:
                 data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
             else:
                 data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}"')
 
-
-            index +=1
-
-        if index == last:
+        if index_machine == last_machine:
             data.append(space * 1 + extraspace + '}')
+            state = 'last'
         else:
             data.append(space * 1 + extraspace + '},')
+            state = 'not last'
+
         data.append(' ')
+        index_machine +=1
 
     # Ende Datenstruktur
     if settings["fa_dhall_create"] == False:
