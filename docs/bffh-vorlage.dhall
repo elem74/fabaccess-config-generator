@@ -44,8 +44,10 @@
     auditlog_path = "/tmp/bffh.audit",
 
 
-    -- ||| GENERATOR START
-    -- ||| GENERATOR END
+    roles = ./roles.dhall,
+	machines = ./machines.dhall,
+    actors = ./actors.dhall,
+    actor_connections = ./actorconnections.dhall,
 
 
     -- Initiators are configured almost the same way as Actors, refer to actor documentation for more details
