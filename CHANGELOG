@@ -1,19 +1,30 @@
-2025.1
-- **Features**
-  - Neu: Option zur Erstellung eines Domänen-Managers. (`manager_domain`)
-  - Neu: Option zur Erstellung eines werkstattweiten Benutzers. (`domain_user`)
-  - Neu: Option zum Einstellen des CSV-Trennzeichens. (`csv_delimiter`)
-- **Konzeptionelle Änderungen**
-  -
-- **Umbenennungen**
-  - Die Einstellung `fa_update_dhall` heißt jetzt `fa_dhall_update`, damit ein einheitliches Benennungsschema mit der dazugehörigen Einstellungen `fa_dhall_file` gegeben ist.
-- **Bugfixes**
-  - Crash bei Verwendung der Einstellung `show_machines`
-  - Korrektur der erzeugten dhall-Syntax. Der letzte Eintrag einer Datenstruktur wird nicht mehr mit einem Komma abgeschlossen.
-- **Sonstiges**
-  - Admin-Berechtigungen wurden vollständig auf Wildcard-Zugriffsschema umgestellt. Zuvor wurden Berechtigungen für einzelne Bereiche vergeben.
+# 2025.2
+## Neuerungen
+  - Option zur Erstellung eines Domänen-Managers. (`manager_domain`)
+  - Option zur Erstellung eines werkstattweiten Benutzers. (`domain_user`)
+  - Parameter, um die CSV-Datei mit der Maschinenliste zu definieren.
+  - Der verwende CSV-Delimiter wird automatisch erkannt.
+  - Die erzeugte Konfiguration wird in einzelnen dhall-Dateien abgelegt, die in der `bffh.dhall` importiert werden.
+    - Die FabAccess-Konfiguration in der `bffh.dhall` wird nicht mehr berührt.
+    - Kompatibilität mit dem offiziellen dhall-Parser (Imports bleiben erhalten; die bisherigen Platzhalter zum Aktualisieren der `bffh.dhall` bleiben bei Nutzung des Parsers nicht erhalten)
 
-2024.6
-- **Diagrammerzeugung**
-  - Das Diagramm enthält jetzt eine Icon-Legende
-  - Unterschiedliche Icons für Administrator und Manager, um die Unterscheidung zu erleichtern.
+## Bugfixes
+- Crash bei Verwendung der Einstellung `show_machines` behoben.
+- Korrektur der erzeugten dhall-Syntax. Der letzte Eintrag einer Datenstruktur wird nicht mehr mit einem Komma abgeschlossen.
+
+## Sonstiges
+- Die erzeugten DHALL-Dateien werden standardgemäß auch im Unterordner `/output` abgelegt.
+- Admin-Berechtigungen wurden vollständig auf Wildcard-Zugriffsschema umgestellt. Zuvor wurden Berechtigungen für einzelne Bereiche vergeben.
+- Schönere Darstellung der Statusinformationen, wenn das Python-Modul `rich` installiert ist.
+
+## Änderungen in der settings.ini
+- Neue Einstellung `fa_dhall_directory`
+- Die Einstellung `manager_schichtleitung ` entfällt (wird ersetzt von `manager_domain`).
+- Die Einstellung `create_file_roles` entfällt. Eine CSV-Datei mit allen Rollennamen und deren FabAcess-IDs wird jetzt standardgemäß erzeugt.
+- Die Einstellung `generate_mermaid` entfällt. Eine Textdatei mit Mermaid-Code für ein Werkstattdiagramm wird jetzt standardgemäß erzeugt.
+- Die Einstellungen `fa_update_dhall` und `fa_dhall_file` entfallen.
+
+# 2024.6
+## Diagrammerzeugung
+- Das Diagramm enthält jetzt eine Icon-Legende
+- Unterschiedliche Icons für Administrator und Manager, um die Unterscheidung zu erleichtern.

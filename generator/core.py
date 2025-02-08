@@ -3,6 +3,27 @@ from string import Template
 from generator.globals import *
 from generator.helpers import *
 
+# Rich-Module
+try:
+    from rich.table import Table
+    from rich.console import Console
+    from rich.text import Text
+    module_rich = True
+except ImportError:
+    module_rich = False
+
+
+# Settings-Dateien finden und laden
+if os.path.isfile('settings.ini') == True:
+    settings = config_load('settings.ini', 'generator')
+else:
+    settings = config_load('./settings.ini', 'generator')
+
+if os.path.isfile('actors.ini') == True:
+    actor_library = load_actors('actors.ini')
+else:
+    actor_library = load_actors('./actors.ini')
+
 string_userhandle = settings["string_userhandle"] + ' '
 string_adminhandle = settings["string_adminhandle"] + ' '
 string_managerhandle = settings["string_managerhandle"] + ' '
@@ -284,12 +305,14 @@ class GraphElement:
 
 # Maschinen aus der CSV-importieren
 def import_machines(file):
+    print('|- Maschinen importieren:')
+
     machines = {}
-    data = csv_listdict(file, settings['csv_delimiter'], csv_match)
+    data = csv_listdict(file, csv_match)
 
     count = 2
-    print(f'{"Zeile": ^8} | {"Status": ^24} | {"Zusatzinformation": ^20}')
-    print(f'{"1": ^8} | {"Kopfzeile": ^24} | {"Kopfzeile wird nicht verarbeitet.": ^20}')
+
+    feedback = []
 
     for entry in data:
 
@@ -297,7 +320,6 @@ def import_machines(file):
         errors = []
 
         # Pflichtfelder
-
         for el in importcheck["single"].keys():
 
             #  Einzelfeld ist leer?
@@ -316,18 +338,34 @@ def import_machines(file):
                     field2_name = key
 
             if len(entry[field1]) > 0 and len(entry[field2]) == 0:
-                errors.append(f'Optionales Felderpaar unvollständig: Feld "{field1_name}" ist ausgefüllt, aber Feld "{field2_name}" ist leer.')
+                errors.append(f'  |- Felderpaar unvollständig: Feld "{field1_name}" ist ausgefüllt, aber Feld "{field2_name}" ist leer.')
 
             if len(entry[field2]) > 0 and len(entry[field1]) == 0:
-                errors.append(f'Optionales Felderpaar unvollständig: Feld "{field2_name}" ist ausgefüllt, aber Feld "{field1_name}" ist leer.')
+                errors.append(f'  |- Felderpaar unvollständig: Feld "{field2_name}" ist ausgefüllt, aber Feld "{field1_name}" ist leer.')
 
-        status = 'Eintrag übersprungen'
-        info = f'Fehlerhafte Konfiguration. ID = {entry["machine_id"]}'
         if len(errors) > 0:
-            print(f'{count: ^8} | {status: ^24} | {info: ^20}')
+
+            feedback.append(
+                {
+                    "count": str(count),
+                    "status": 'Übersprungen',
+                    "info": 'Konfigurationsfehler',
+                    "details": f'ID: {entry["machine_id"]}',
+                }
+            )
+
             for e in errors:
-                print(f'{"":>36}| ' + e)
+                feedback.append(
+                {
+                    "count": '',
+                    "status": '',
+                    "info": '',
+                    "details": e,
+                }
+            )
+
             count += 1
+
             continue
 
         #  Maschine anlegen
@@ -339,16 +377,73 @@ def import_machines(file):
                 f'{fa_id}': Machine(entry)
             })
 
-            status = 'Maschine angelegt'
-            info = f'FA_ID = {fa_id}'
+            feedback.append(
+                {
+                    "count": str(count),
+                    "status": 'OK',
+                    "info": 'Maschine angelegt',
+                    "details": f'ID: {entry["machine_id"]}',
+                }
+            )
 
-            print(f'{count: ^8} | {status: ^24} | {info: ^20}')
         else:
-            status = 'Eintrag übersprungen'
-            info = f'ID bereits vergeben. ID = {entry["machine_id"]}'
-            print(f'{count: ^8} | {status: ^24} | {info: ^20}')
+
+            feedback.append(
+                {
+                    "count": str(count),
+                    "status": 'Übersprungen',
+                    "info": 'Doppelte Maschinen-ID',
+                    "details": f'ID: {entry["machine_id"]}',
+                }
+            )
 
         count += 1
+
+
+    # rich-switch
+    if module_rich == True:
+        console = Console()
+        table = Table(highlight="pale_green3")
+        table.add_column("Zeile", justify="right")
+        table.add_column("Status")
+        table.add_column("Info")
+        table.add_column("Details")
+
+        status = Text('OK')
+        status.stylize("green")
+        table.add_row("1", status, "Kopfzeile", "Kopfzeile wird nicht verarbeitet.")
+
+        for f in feedback:
+
+            if 'OK' in f["status"]:
+                status = Text(f["status"])
+                status.stylize("green")
+
+            else:
+
+                if 'Übersprungen' in f["status"]:
+                    status = Text(f["status"])
+                    status.stylize("dark_orange")
+                else:
+                    status = Text(f["status"])
+
+            table.add_row(f["count"], status, f["info"], f["details"])
+
+        console.print(table)
+
+    else:
+        print(f'{"Zeile": ^8} | {"Status": ^24} | {"Details": ^20}')
+        print(f'{"1": ^8} | {"Kopfzeile": ^24} | {"Kopfzeile wird nicht verarbeitet.": <20}')
+
+        for f in feedback:
+            print(f'{f["count"]: ^8} | {f["status"]: ^24} | {f["details"]: <20}')
+
+
+    # Datenanzeige
+    if settings["show_machines"] == True:
+        for m in machines.values():
+            display_machine(m)
+
 
     return machines
 
@@ -357,6 +452,8 @@ def import_machines(file):
 
 # Rollen erstellen
 def generate_roles(machines):
+
+    print('|- Rollen erzeugen')
 
     roles = {}
 
@@ -461,7 +558,9 @@ def generate_roles(machines):
                     roles[roledata["id"]]["perms"].append(p)
 
     
-    # print_dict(roles)
+    # Datenanzeige
+    if settings["show_roles"] == True:
+        print_dict(roles)
 
     return roles
 
@@ -471,18 +570,15 @@ def generate_bffh_roles(roles):
     data = []
 
     # Anfang Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + 'roles = {')
-    else:
-        data.append('{')
+    data.append('{')
 
     # Inhalt
     last_role = len(roles) - 1
 
     for index_role, role in enumerate(roles):
-        data.append(space * 1 + extraspace + f'{role}' + ' =')
-        data.append(space * 1 + extraspace + '{')
-        data.append(space * 2 + extraspace + 'permissions =  [')
+        data.append(space * 1  + f'{role}' + ' =')
+        data.append(space * 1  + '{')
+        data.append(space * 2  + 'permissions =  [')
 
 
         last_perm = len(roles[role]["perms"]) - 1
@@ -494,20 +590,17 @@ def generate_bffh_roles(roles):
             else:
                 data.append(space * 4 + f'"{perm}"')
 
-        data.append(space * 2 + extraspace + ']')
+        data.append(space * 2  + ']')
 
         if index_role == last_role:
-            data.append(space * 1 + extraspace + '}')
+            data.append(space * 1  + '}')
         else:
-            data.append(space * 1 + extraspace + '},')
+            data.append(space * 1  + '},')
 
         data.append(' ')
     
     # Ende Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + '},')
-    else:
-        data.append('}')
+    data.append('}')
 
     return data
 
@@ -517,10 +610,7 @@ def generate_bffh_machines(machines):
     data = []
 
     # Anfang Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + 'machines = {')
-    else:
-        data.append('{')
+    data.append('{')
 
     # Inhalt
     last_machine = len(machines) - 1
@@ -528,12 +618,12 @@ def generate_bffh_machines(machines):
     for index_machine, (id, m) in enumerate(machines.items()):
 
         specs = m.get_machine()
-        data.append(space * 1 + extraspace + f'{specs["fa_id"]}' + ' =')
-        data.append(space * 1 + extraspace + '{')
-        data.append(space * 2 + extraspace + f'name = "{specs["name"]}",')
-        data.append(space * 2 + extraspace + f'description = "{specs["desc"]}",')
-        data.append(space * 2 + extraspace + f'wiki = "{specs["wikiurl"]}",')
-        data.append(space * 2 + extraspace + f'category = "{specs["category"]}",')
+        data.append(space * 1  + f'{specs["fa_id"]}' + ' =')
+        data.append(space * 1  + '{')
+        data.append(space * 2  + f'name = "{specs["name"]}",')
+        data.append(space * 2  + f'description = "{specs["desc"]}",')
+        data.append(space * 2  + f'wiki = "{specs["wikiurl"]}",')
+        data.append(space * 2  + f'category = "{specs["category"]}",')
 
 
         permcount = len(specs["perms"])
@@ -542,25 +632,22 @@ def generate_bffh_machines(machines):
         for i in range(permcount):
 
             if i < last_perm:
-                data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
+                data.append(space * 2  + f'{specs["perms_names"][i]} = "{specs["perms"][i]}",')
             else:
-                data.append(space * 2 + extraspace + f'{specs["perms_names"][i]} = "{specs["perms"][i]}"')
+                data.append(space * 2  + f'{specs["perms_names"][i]} = "{specs["perms"][i]}"')
 
         if index_machine == last_machine:
-            data.append(space * 1 + extraspace + '}')
+            data.append(space * 1  + '}')
             state = 'last'
         else:
-            data.append(space * 1 + extraspace + '},')
+            data.append(space * 1  + '},')
             state = 'not last'
 
         data.append(' ')
         index_machine +=1
 
     # Ende Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + '},')
-    else:
-        data.append('}')
+    data.append('}')
 
     return data
 
@@ -570,10 +657,7 @@ def generate_bffh_actors(machines):
     data = []
 
     # Anfang Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + 'actors = {')
-    else:
-        data.append('{')
+    data.append('{')
 
     # Inhalt
     last_actor = len(machines) - 1
@@ -586,11 +670,11 @@ def generate_bffh_actors(machines):
 
             # 2do Actor Library Funktionalität
 
-            data.append(space * 1 + extraspace + f'{actor_handle} =')
-            data.append(space * 1 + extraspace + '{')
-            data.append(space * 2 + extraspace + f'module = "{actor_library[specs["actor_type"]]["module"]}",')
-            data.append(space * 2 + extraspace + 'params =')
-            data.append(space * 2 + extraspace + '{')
+            data.append(space * 1  + f'{actor_handle} =')
+            data.append(space * 1  + '{')
+            data.append(space * 2  + f'module = "{actor_library[specs["actor_type"]]["module"]}",')
+            data.append(space * 2  + 'params =')
+            data.append(space * 2  + '{')
 
             # Aktor-ID der aktuellen Maschine speichern
             replace = {
@@ -604,24 +688,21 @@ def generate_bffh_actors(machines):
                     string = template.substitute(replace)
 
                     if index_param < last_param:
-                        data.append(space * 3 + extraspace + f'{key} = {string},')
+                        data.append(space * 3  + f'{key} = {string},')
                     else:
-                        data.append(space * 3 + extraspace + f'{key} = {string}')
+                        data.append(space * 3  + f'{key} = {string}')
 
-            data.append(space * 2 + extraspace + '}')
+            data.append(space * 2  + '}')
 
             if index_actor == last_actor:
-                data.append(space * 1 + extraspace + '}')
+                data.append(space * 1  + '}')
             else:
-                data.append(space * 1 + extraspace + '},')
+                data.append(space * 1  + '},')
 
             data.append(' ')
 
     # Ende Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + '},')
-    else:
-        data.append('}')
+    data.append('}')
 
     return data
 
@@ -632,10 +713,7 @@ def generate_bffh_actorconnections(machines):
     data = []
 
     # Anfang Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + 'actor_connections = [')
-    else:
-        data.append('[')
+    data.append('[')
 
     # Inhalt
     last = len(machines) - 1
@@ -647,80 +725,113 @@ def generate_bffh_actorconnections(machines):
             actor_fullid = specs["actor_type"] + '_' + specs["actor_id"]
 
             if index == last:
-                data.append(space * 1 + extraspace + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' }')
+                data.append(space * 1  + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' }')
             else:
-                data.append(space * 1 + extraspace + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
+                data.append(space * 1  + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
 
     # Ende Datenstruktur
-    if settings["fa_dhall_create"] == False:
-        data.append(space + '],')
-    else:
-        data.append(']')
+    data.append(']')
 
     return data
 
 
 # CSV-Rollenliste
 
-def generate_csv_roles(roles):
+def create_roles_csv(roles):
+
+    print('|- Rollenliste exportieren')
+
     data = []
     data.append('ID der Rolle; Name der Rolle')
     for id, values in roles.items():
         string = id + ';' + values["name"]
         data.append(string)
 
-    return data
+    write_file('output/roles.csv', data)
+
+
+# dhall-Dateien erzeugen
+
+def create_singledhall(export_roles, export_machines, export_actors, export_actorconnections):
+    print('|- Gesamten DHALL-Output exportieren')
+
+    input = [export_roles, export_machines, export_actors, export_actorconnections]
+
+    data = []
+
+    # Rollen
+
+    index_input = 0
+
+    for i in input:
+
+        match(index_input):
+            case 0: data.append('roles =')
+            case 1: data.append('machines =')
+            case 2: data.append('actors =')
+            case 3: data.append('export_actorconnections =')
+
+
+        last = len(input[index_input]) - 1
+        for index_seg, (el) in enumerate(i):
+
+            if index_seg == last:
+                data.append(el + ',')
+            else:
+                data.append(el)
+
+        index_input += 1
+
+
+    write_file('output/bffh-dhall-data.txt', data)
+
+def create_multipledhalls(export_roles, export_machines, export_actors, export_actorconnections):
 
 
 
-# bffh.dhall aktualisieren
+    input = [export_roles, export_machines, export_actors, export_actorconnections]
 
-def generate_bffh_dhall(generated_content):
+    fa_dhall_directory = settings["fa_dhall_directory"].replace('\\', '/')
 
-    dhall_file = settings["fa_dhall_file"]
 
-    reader = open(dhall_file, "r", encoding='utf-8')
+    print('|- Einzelne DHALLs exportieren')
 
-    data_write = []
+    if fa_dhall_directory != '':
+        print(f'|- Ablegen der DHALL-Dateien in: "{fa_dhall_directory}"')
 
-    inside_generator_block = False
-    found_generator_block = False
+    index_input = 0
 
-    count = 1
+    for i in input:
 
-    # bffh.dhall zeilenweise durchlaufen
-    for line in reader:
+        match(index_input):
+            case 0: target_file = 'roles.dhall'
+            case 1: target_file = 'machines.dhall'
+            case 2: target_file = 'actors.dhall'
+            case 3: target_file = 'actorconnections.dhall'
 
-        # Beginn des Generator-Blocks gefunden --> Erzeugte Daten anhängen, Variablen umschalten
-        if 'GENERATOR START' in line:
-            found_generator_block = True
-            inside_generator_block = True
-            data_write.append(line.replace('\n', ''))
-            data_write.append(' ')
-            data_write += generated_content
-            data_write.append(' ')
-            added_generated_content = True
-            # print(f'{count} Generatorblock-Anfang gefunden')
+        print(f'   |- Erzeuge {target_file}')
 
-        # Beginn des Generator-Blocks gefunden --> Variable umschalten
-        if 'GENERATOR END' in line:
-            inside_generator_block = False
-            # print(f'{count} Generatorblock-Ende gefunden')
+        # Im Output-Ordner
+        target = 'output/' + target_file
+        write_file(target, i)
 
-        # Zeile liegt außerhalb des Generator-Blocks --> Zeile übernehmen
-        if inside_generator_block == False:
-            data_write.append(line.replace('\n', ''))
 
-        # Zeile liegt innerhalb des Generator-Blocks --> Zeile übernehmen
-        if inside_generator_block == True:
-            # Einfügung wurden vorgenommen, Zeile aus bffh.dhall ignorieren
-            continue
+        # Im zusätzlichen Ordner
+        if fa_dhall_directory != '':
+            target = fa_dhall_directory + '/' + target_file
+            target = target.replace('//', '/')
+            write_file(target, i)
 
-    if found_generator_block == True:
-        return data_write
-    else:
-        print('Datei "bffh.dhall" enthält keinen Platzhalter zum automatischen Einfügen.')
-        return []
+        index_input += 1
+
+
+def create_mermaid(machines):
+    print('|- Mermaid-Code erzeugen')
+
+    graphelements = graph_create_elements(machines)
+    mermaidcode = graph_create_mermaidcode(graphelements)
+
+    write_file('output/mermaid-code.txt', mermaidcode)
 
 
 # Maschine vollständig ausgeben
