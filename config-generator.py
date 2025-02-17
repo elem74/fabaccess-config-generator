@@ -11,7 +11,7 @@ from generator.helpers import *
 
 app_path = os.path.dirname(os.path.realpath(__file__))
 
-input_file = 'maschinenliste.csv'
+input_file = os.path.join(os.path.dirname(__file__), 'maschinenliste.csv')
 
 # CLI Parameter
 if len(sys.argv) > 0:
