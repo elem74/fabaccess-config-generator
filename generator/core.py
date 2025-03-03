@@ -20,9 +20,9 @@ else:
     settings = config_load('./settings.ini', 'generator')
 
 if os.path.isfile('actors.ini') == True:
-    plugin_library = load_plugins('actors.ini')
+    actors_library = load_plugins('actors.ini')
 else:
-    plugin_library = load_plugins('./actors.ini')
+    actors_library = load_plugins('./actors.ini')
 
 if os.path.isfile('initiators.ini') == True:
     initiator_library = load_plugins('initiators.ini')
@@ -665,6 +665,11 @@ def generate_bffh_machines(machines):
 # Aktoren
 def generate_bffh_plugins(machines, type):
 
+    if type == "actor":
+        plugin_library = actors_library
+    elif type == "initiator":
+        plugin_library = initiator_library
+
     data = []
 
     # Anfang Datenstruktur
@@ -676,7 +681,7 @@ def generate_bffh_plugins(machines, type):
     for index_plugin, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
-        if len(specs["{}_id"].format(type)) > 0 and len(specs["{}_type"].format(type)) > 0:
+        if len(specs["{}_id".format(type)]) > 0 and len(specs["{}_type".format(type)]) > 0:
             plugin_handle = specs["{}_type".format(type)] + '_' + specs["{}_id".format(type)]
 
             # 2do Plugin Library Funktionalität
@@ -731,14 +736,13 @@ def generate_bffh_pluginconnections(machines, type):
     for index, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
-        if len(specs["{}_id".format(type)]) > 0 and len(specs["{}_type"].format(type)) > 0:
-            plugin_fullid = specs["{}_type"] + '_' + specs["{}_id".format(type)]
+        if len(specs["{}_id".format(type)]) > 0 and len(specs["{}_type".format(type)]) > 0:
+            plugin_fullid = specs["{}_type".format(type)] + '_' + specs["{}_id".format(type)]
 
             if index == last:
-                "{ machine = \"{}\", {} = \"{}\" }".format(specs["fa_id"], type, plugin_fullid)
-                data.append(space * 1  + "{ machine = \"{}\", {} = \"{}\" }".format(specs["fa_id"], type, plugin_fullid))
+                data.append(space * 1  + "{{ machine = \"{}\", {} = \"{}\" }}".format(specs["fa_id"], type, plugin_fullid))
             else:
-                data.append(space * 1  + "{ machine = \"{}\", {} = \"{}\" },".format(specs["fa_id"], type, plugin_fullid))
+                data.append(space * 1  + "{{ machine = \"{}\", {} = \"{}\" }},".format(specs["fa_id"], type, plugin_fullid))
 
     # Ende Datenstruktur
     data.append(']')
@@ -820,7 +824,7 @@ def create_multipledhalls(export_roles, export_machines, export_actors, export_a
             case 1: target_file = 'machines.dhall'
             case 2: target_file = 'actors.dhall'
             case 3: target_file = 'actorconnections.dhall'
-            case 4: target_file = 'initiator.dhall'
+            case 4: target_file = 'initiators.dhall'
             case 5: target_file = 'initiatorconnections.dhall'
         print(f'   |- Erzeuge {target_file}')
 

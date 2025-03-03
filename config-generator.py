@@ -40,10 +40,10 @@ roles = generate_roles(machines)
 # Finale DHALL-Daten erzeugen
 export_roles = generate_bffh_roles(roles)
 export_machines = generate_bffh_machines(machines)
-export_actors = generate_bffh_plugins(machines, "actors")
-export_actorconnections = generate_bffh_pluginconnections(machines, "actors")
-export_initiators = generate_bffh_plugins(machines, "initiators")
-export_initiatorconnections = generate_bffh_pluginconnections(machines, "initiators")
+export_actors = generate_bffh_plugins(machines, "actor")
+export_actorconnections = generate_bffh_pluginconnections(machines, "actor")
+export_initiators = generate_bffh_plugins(machines, "initiator")
+export_initiatorconnections = generate_bffh_pluginconnections(machines, "initiator")
 export_all = export_roles + export_machines + export_actors + export_actorconnections + export_initiators + export_initiatorconnections
 
 
