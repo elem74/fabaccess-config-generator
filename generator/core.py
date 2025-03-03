@@ -254,7 +254,7 @@ class Machine(Subarea):
             "desc": machine_desc,
             "wikiurl": wikiurl,
             "actor_id": actor_id,
-            "actor_type": actor_type
+            "actor_type": actor_type,
             "initiator_id": initiator_id,
             "initiator_type": initiator_type
         }
