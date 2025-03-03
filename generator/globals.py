@@ -1,9 +1,7 @@
 from generator.helpers import config_load
 from generator.helpers import load_actors
 
-# Daten für Generator
-settings = config_load('settings.ini', 'generator')
-actor_library = load_actors('actors.ini')
+# Icons für Mermaid-Code
 
 icon_admin = "👑"
 icon_manager = "🛠️"
@@ -12,13 +10,14 @@ icon_user = "👷‍♂️"
 icon_custom = '👩‍🚀'
 
 
+# Daten für den zentrale Rollen
 admin_global = {
     "id": "Admin",
     "name": "_Admin FabAccess",
     "perms": ["bffh.users.manage", "bffh.users.info", "bffh.users.admin"]
 }
 
-manager_schichtleitung = {
+manager_domain = {
     "id": "_manager_schichtleitung",
     "name": "_Manager Schichtleitung",
     "perms": []

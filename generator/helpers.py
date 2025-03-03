@@ -49,8 +49,16 @@ def list_join(my_list, insert):
     my_string = f'{insert}'.join(str(element) for element in my_list)
     return my_string
 
+# CSV-Delimiter ermitteln
+def csv_getdelimiter(file: str) -> str:
+    with open(file, 'r') as csvfile:
+        delimiter = str(csv.Sniffer().sniff(csvfile.read()).delimiter)
+        return delimiter
+
 # CSV einlesen: Erzeugt eine Liste, die für jede Zeile ein Dictionary mit Header und Value ausgibt
 def csv_listdict(filename, replacedict = {}):
+
+    csv_delimiter = csv_getdelimiter(filename)
 
     csvfile = open(filename, 'r', encoding='utf-8-sig')
     tempfile = ''
@@ -75,7 +83,7 @@ def csv_listdict(filename, replacedict = {}):
 
     # Dictionary bilden
     csvfile = open(filename, mode='r', encoding='utf-8-sig')
-    reader = csv.DictReader(csvfile, delimiter=';')
+    reader = csv.DictReader(csvfile, delimiter=csv_delimiter)
 
     finaldata = []
 
@@ -87,6 +95,7 @@ def csv_listdict(filename, replacedict = {}):
         os.remove(tempfile)
 
     return finaldata
+
 
 # Datei schreiben
 def write_file(filename, content):
@@ -180,12 +189,6 @@ def config_load(file, section = 'all'):
                 dict_settings[key] = save
 
     return dict_settings
-
-
-#  ------------------ ALT ---------------
-
-
-# Maschinen-Dictionary sortieren
 
 # Actor-Library einlesen
 def load_actors(file):

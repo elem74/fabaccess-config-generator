@@ -1,5 +1,7 @@
-__version__ = '2024.6'
+__version__ = '2025.2'
 
+import os
+import sys
 import time
 time_start = time.perf_counter()
 
@@ -7,21 +9,32 @@ from pathlib import Path
 from generator.core import *
 from generator.helpers import *
 
-input_file = 'maschinenliste.csv'
+app_path = os.path.dirname(os.path.realpath(__file__))
+
+input_file = os.path.join(os.path.dirname(__file__), 'maschinenliste.csv')
+
+# CLI Parameter
+if len(sys.argv) > 0:
+
+    for arg in sys.argv:
+
+        if 'file=' in arg:
+            input_file = arg.replace('file=', '')
+
 
 # Output-Ordner anlegen
+print('Erzeuge Konfiguration\n|')
+
 directory = "output"
 path = Path(directory)
 path.mkdir(parents=True, exist_ok=True)
 
-print(f' --- Datei = {input_file}')
+print(f'|- Datei = {input_file}')
 
 # Maschinenliste einlesen
-print(' --- Maschinen importieren:')
 machines = import_machines(input_file)
 
 # Rollen für FabAccess erzeugen
-print(' --- Rollen erzeugen')
 roles = generate_roles(machines)
 
 # Finale DHALL-Daten erzeugen
@@ -32,50 +45,22 @@ export_actorconnections = generate_bffh_actorconnections(machines)
 export_all = export_roles + export_machines + export_actors + export_actorconnections
 
 
-# Anzeigen der erzeugten Daten
-if settings["show_machines"] == True:
-    for m in machines:
-        display_machine(m)
+# ------- Daten exportieren
 
-if settings["show_roles"] == True:
-    print_dict(roles)
+# Textdatei mit komplettem dhall-Inhalt
+create_singledhall(export_roles, export_machines, export_actors, export_actorconnections)
 
-# Daten exportieren
-print(' --- DHALL-Daten exportieren')
-write_file('output/bffh-dhall-data.txt', export_all)
+# Rollenliste als CSV
+create_roles_csv(roles)
 
-if settings["create_file_roles"] == True:
-    print(' --- Rollen exportieren in roles.csv')
-    content = generate_csv_roles(roles)
-    write_file('output/roles.csv', content)
-
-if settings["fa_update_dhall"] == True:
-    print(' --- Aktualisierung der bffh.dhall')
-    fa_dhall_file = settings["fa_dhall_file"]
-
-    # Pfadangabe "fa_dhall_file" hat Inhalt
-    if len(fa_dhall_file) > 0:
-
-        # Daten schreiben
-        dhall_content = generate_bffh_dhall(export_all)
-
-        if len(dhall_content) > 0:
-            write_file(fa_dhall_file, dhall_content)
-
-    # Pfadangabe "fa_dhall_file" ist leer
-    else:
-        print('Einstellung "fa_dhall_file" ist leer, es wurde kein Pfad zur bffh.dhall angegeben.')
-        print('Bitte das Feld ausfüllen oder "fa_update_dhall" auf "False" setzen.')
+# Einzelne DHALLs
+create_multipledhalls(export_roles, export_machines, export_actors, export_actorconnections)
 
 # Mermaid-Code
-if settings["generate_mermaid"] == True:
-    print(' --- Mermaid-Code erzeugen')
-    graphelements = graph_create_elements(machines)
-    mermaidcode = graph_create_mermaidcode(graphelements)
-    write_file('output/mermaid-code.txt', mermaidcode)
+create_mermaid(machines)
 
-# ------------------------------------------------------------------
+# ----------------------
 time_end = time.perf_counter()
 time_span = round(time_end - time_start, 2)
-print('-------------------------')
+print('---------')
 print(f'Laufzeit: {time_span} Sekunden')
