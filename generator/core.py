@@ -20,9 +20,9 @@ else:
     settings = config_load('./settings.ini', 'generator')
 
 if os.path.isfile('actors.ini') == True:
-    actor_library = load_actors('actors.ini')
+    actor_library = load_plugins('actors.ini')
 else:
-    actor_library = load_actors('./actors.ini')
+    actor_library = load_plugins('./actors.ini')
 
 string_userhandle = settings["string_userhandle"] + ' '
 string_adminhandle = settings["string_adminhandle"] + ' '
