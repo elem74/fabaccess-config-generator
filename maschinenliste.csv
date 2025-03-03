@@ -1,16 +1,16 @@
-﻿Name Domäne;Name Bereich;Name Unterbereich;Name Maschine;Maschinenbeschreibung;Manager Unterbereich;ID Alternativrolle;Name Alternativrolle;Wiki-URL;ID Domäne;ID Bereich;ID Unterbereich;ID Maschine;Aktor ID;Aktor Typ;Kommentar
-Beispielwerkstatt;Holzwerkstatt;Bandsäge;Bandsäge;Bandsäge im Holzbereich;;;;;beispielw;holz;bandsaege;bandsaege;1;Tasmota;
-Beispielwerkstatt;Holzwerkstatt;Hobelmaschine;Hobelmaschine;Hobelmaschine im Holzbereich;;;;;beispielw;holz;hobelmaschine;hobelmaschine;2;Tasmota;
-Beispielwerkstatt;Holzwerkstatt;CNC-Fräse;CNC-Fräse;CNC Fräse im Holzbereich;;;;;beispielw;holz;holzcnc;holzcncfraese;6;Tasmota;
-Beispielwerkstatt;Holzwerkstatt;;Kappsäge;Kappsäge mit allgemeiner Einweisung Holz;;;;;beispielw;holz;;kappsaege;7;Tasmota;
-Beispielwerkstatt;Holzwerkstatt;;Bandschleifer;Bandschleifer mit allgemeiner Einweisung Holz;;;;;beispielw;holz;;bandschleifer;8;Tasmota;Irgendein Kommentar
-Beispielwerkstatt;Holzwerkstatt;;Ständerbohrmaschine;Ständerbohrmaschine mit allgemeiner Einweisung Holz;;;;;beispielw;holz;;staenderbohrmaschine;9;Tasmota;
-Beispielwerkstatt;Textilwerkstatt;;Nähmaschine 1;Nähmaschine Nummer 1;;;;;beispielw;textil;;naehmaschine1;10;Tasmota;
-Beispielwerkstatt;Textilwerkstatt;;Nähmaschine 2;Nähmaschine Nummer 2;;;;;beispielw;textil;;naehmaschine2;11;Tasmota;
-Beispielwerkstatt;FabLab;3D-Druck;3D-Drucker 1;3D-Drucker Modell 111;x;;;;beispielw;fablab;3dprint;3ddrucker1;12;Tasmota;
-Beispielwerkstatt;FabLab;3D-Druck;3D-Drucker 2;3D-Drucker Modell 222;x;;;;beispielw;fablab;3dprint;3ddrucker2;13;Tasmota;
-Beispielwerkstatt;FabLab;Laser;Lasercutter;Modell Laser3000;x;;;https://www.fiktivedoku.de;beispielw;fablab;laser;laser3000;14;Tasmota;
-Beispielwerkstatt;FabLab;Laser;Kühlung;Modell Kühlung3000;x;;;;beispielw;fablab;laser;kühlung3000;15;Tasmota;
-Beispielwerkstatt;Siebdruck;;SD-Belichter;Belichter für die Siebe;;;;;beispielw;siebdruck;;sdbelichter;16;Tasmota;
-Beispielwerkstatt;Siebdruck;;A3-Drucker;A3 Drucker im Siebdruck Bereich;;drucker;Druckernutzung;;beispielw;siebdruck;;a3drucker;17;Tasmota;
-Beispielwerkstatt;Büro;;Drucker;;;drucker;Druckernutzung;;beispielw;büro;;drucker;18;Tasmota;
+﻿Name Domäne,Name Bereich,Name Unterbereich,Name Maschine,Maschinenbeschreibung,Manager Unterbereich,ID Alternativrolle,Name Alternativrolle,Wiki-URL,ID Domäne,ID Bereich,ID Unterbereich,ID Maschine,Aktor ID,Aktor Typ,Initiator ID,Initiator Typ,Kommentar
+Beispielwerkstatt,Holzwerkstatt,Bandsäge,Bandsäge,Bandsäge im Holzbereich,,,,,beispielw,holz,bandsaege,bandsaege,1,Tasmota,,,
+Beispielwerkstatt,Holzwerkstatt,Hobelmaschine,Hobelmaschine,Hobelmaschine im Holzbereich,,,,,beispielw,holz,hobelmaschine,hobelmaschine,2,Tasmota,1,Process,
+Beispielwerkstatt,Holzwerkstatt,CNC-Fräse,CNC-Fräse,CNC Fräse im Holzbereich,,,,,beispielw,holz,holzcnc,holzcncfraese,6,Tasmota,,,
+Beispielwerkstatt,Holzwerkstatt,,Kappsäge,Kappsäge mit allgemeiner Einweisung Holz,,,,,beispielw,holz,,kappsaege,7,Tasmota,,,
+Beispielwerkstatt,Holzwerkstatt,,Bandschleifer,Bandschleifer mit allgemeiner Einweisung Holz,,,,,beispielw,holz,,bandschleifer,8,Tasmota,,,Irgendein Kommentar
+Beispielwerkstatt,Holzwerkstatt,,Ständerbohrmaschine,Ständerbohrmaschine mit allgemeiner Einweisung Holz,,,,,beispielw,holz,,staenderbohrmaschine,9,Tasmota,,,
+Beispielwerkstatt,Textilwerkstatt,,Nähmaschine 1,Nähmaschine Nummer 1,,,,,beispielw,textil,,naehmaschine1,10,Tasmota,,,
+Beispielwerkstatt,Textilwerkstatt,,Nähmaschine 2,Nähmaschine Nummer 2,,,,,beispielw,textil,,naehmaschine2,11,Tasmota,,,
+Beispielwerkstatt,FabLab,3D-Druck,3D-Drucker 1,3D-Drucker Modell 111,x,,,,beispielw,fablab,3dprint,3ddrucker1,12,Tasmota,,,
+Beispielwerkstatt,FabLab,3D-Druck,3D-Drucker 2,3D-Drucker Modell 222,x,,,,beispielw,fablab,3dprint,3ddrucker2,13,Tasmota,,,
+Beispielwerkstatt,FabLab,Laser,Lasercutter,Modell Laser3000,x,,,https://www.fiktivedoku.de,beispielw,fablab,laser,laser3000,14,Tasmota,,,
+Beispielwerkstatt,FabLab,Laser,Kühlung,Modell Kühlung3000,x,,,,beispielw,fablab,laser,kühlung3000,15,Tasmota,,,
+Beispielwerkstatt,Siebdruck,,SD-Belichter,Belichter für die Siebe,,,,,beispielw,siebdruck,,sdbelichter,16,Tasmota,,,
+Beispielwerkstatt,Siebdruck,,A3-Drucker,A3 Drucker im Siebdruck Bereich,,drucker,Druckernutzung,,beispielw,siebdruck,,a3drucker,17,Tasmota,,,
+Beispielwerkstatt,Büro,,Drucker,,,drucker,Druckernutzung,,beispielw,büro,,drucker,18,Tasmota,,,

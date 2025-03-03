@@ -1,5 +1,5 @@
 from generator.helpers import config_load
-from generator.helpers import load_actors
+from generator.helpers import load_plugins
 
 # Icons für Mermaid-Code
 
@@ -41,6 +41,9 @@ csv_match = {
     "Aktor ID": "actor_id",
     "Aktor Modul": "actor_module",
     "Aktor Typ": "actor_type",
+    "Initiator ID": "initiator_id",
+    "Initiator Modul": "initiator_module",
+    "Initiator Typ": "initiator_type",
     "ID Alternativrolle": "customrole_id",
     "Name Alternativrolle": "customrole_name",
 }

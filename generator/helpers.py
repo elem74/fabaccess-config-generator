@@ -191,7 +191,7 @@ def config_load(file, section = 'all'):
     return dict_settings
 
 # Actor-Library einlesen
-def load_actors(file):
+def load_plugins(file):
     dict_actors = {}
 
     filehandle = app_path + f'/{file}'
