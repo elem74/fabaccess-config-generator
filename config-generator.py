@@ -40,21 +40,23 @@ roles = generate_roles(machines)
 # Finale DHALL-Daten erzeugen
 export_roles = generate_bffh_roles(roles)
 export_machines = generate_bffh_machines(machines)
-export_actors = generate_bffh_actors(machines)
-export_actorconnections = generate_bffh_actorconnections(machines)
-export_all = export_roles + export_machines + export_actors + export_actorconnections
+export_actors = generate_bffh_plugins(machines, "actors")
+export_actorconnections = generate_bffh_pluginconnections(machines, "actors")
+export_initiators = generate_bffh_plugins(machines, "initiators")
+export_initiatorconnections = generate_bffh_pluginconnections(machines, "initiators")
+export_all = export_roles + export_machines + export_actors + export_actorconnections + export_initiators + export_initiatorconnections
 
 
 # ------- Daten exportieren
 
 # Textdatei mit komplettem dhall-Inhalt
-create_singledhall(export_roles, export_machines, export_actors, export_actorconnections)
+create_singledhall(export_roles, export_machines, export_actors, export_actorconnections, export_actors, export_initiatorconnections)
 
 # Rollenliste als CSV
 create_roles_csv(roles)
 
 # Einzelne DHALLs
-create_multipledhalls(export_roles, export_machines, export_actors, export_actorconnections)
+create_multipledhalls(export_roles, export_machines, export_actors, export_actorconnections, export_actors, export_initiatorconnections)
 
 # Mermaid-Code
 create_mermaid(machines)

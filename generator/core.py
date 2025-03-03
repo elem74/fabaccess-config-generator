@@ -20,9 +20,15 @@ else:
     settings = config_load('./settings.ini', 'generator')
 
 if os.path.isfile('actors.ini') == True:
-    actor_library = load_plugins('actors.ini')
+    plugin_library = load_plugins('actors.ini')
 else:
-    actor_library = load_plugins('./actors.ini')
+    plugin_library = load_plugins('./actors.ini')
+
+if os.path.isfile('initiators.ini') == True:
+    initiator_library = load_plugins('initiators.ini')
+else:
+    initiator_library = load_plugins('./initiators.ini')
+
 
 string_userhandle = settings["string_userhandle"] + ' '
 string_adminhandle = settings["string_adminhandle"] + ' '
@@ -198,6 +204,9 @@ class Machine(Subarea):
         actor_id = string_clean(data["actor_id"].strip()).lower()
         # actor_module = data["actor_module"].strip()
         actor_type = data["actor_type"].strip().lower()
+        initiator_id = string_clean(data["initiator_id"].strip()).lower()
+        # initiator_module = data["initiator_module"].strip()
+        initiator_type = data["initiator_type"].strip().lower()
 
         customrole_id = string_clean(data["customrole_id"].strip()).lower()
         customrole_name = data["customrole_name"].strip()
@@ -246,6 +255,8 @@ class Machine(Subarea):
             "wikiurl": wikiurl,
             "actor_id": actor_id,
             "actor_type": actor_type
+            "initiator_id": initiator_id,
+            "initiator_type": initiator_type
         }
 
         self.customrole = {
@@ -652,7 +663,7 @@ def generate_bffh_machines(machines):
     return data
 
 # Aktoren
-def generate_bffh_actors(machines):
+def generate_bffh_plugins(machines, type):
 
     data = []
 
@@ -660,30 +671,30 @@ def generate_bffh_actors(machines):
     data.append('{')
 
     # Inhalt
-    last_actor = len(machines) - 1
+    last_plugin = len(machines) - 1
 
-    for index_actor, (id, m) in enumerate(machines.items()):
+    for index_plugin, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
-        if len(specs["actor_id"]) > 0 and len(specs["actor_type"]) > 0:
-            actor_handle = specs["actor_type"] + '_' + specs["actor_id"]
+        if len(specs["{}_id"].format(type)) > 0 and len(specs["{}_type"].format(type)) > 0:
+            plugin_handle = specs["{}_type".format(type)] + '_' + specs["{}_id".format(type)]
 
-            # 2do Actor Library Funktionalität
+            # 2do Plugin Library Funktionalität
 
-            data.append(space * 1  + f'{actor_handle} =')
+            data.append(space * 1  + f'{plugin_handle} =')
             data.append(space * 1  + '{')
-            data.append(space * 2  + f'module = "{actor_library[specs["actor_type"]]["module"]}",')
+            data.append(space * 2  + f'module = "{plugin_library[specs["{}_type".format(type)]]["module"]}",')
             data.append(space * 2  + 'params =')
             data.append(space * 2  + '{')
 
             # Aktor-ID der aktuellen Maschine speichern
             replace = {
-                "actor_id": specs["actor_id"]
+                "{}_id".format(type): specs["{}_id".format(type)]
             }
 
-            last_param = len(actor_library[specs["actor_type"]]["params"]) - 1
+            last_param = len(plugin_library[specs["{}_type".format(type)]]["params"]) - 1
 
-            for index_param, (key, value) in enumerate(actor_library[specs["actor_type"]]["params"].items()):
+            for index_param, (key, value) in enumerate(plugin_library[specs["{}_type".format(type)]]["params"].items()):
                     template = Template(value)
                     string = template.substitute(replace)
 
@@ -694,7 +705,7 @@ def generate_bffh_actors(machines):
 
             data.append(space * 2  + '}')
 
-            if index_actor == last_actor:
+            if index_plugin == last_plugin:
                 data.append(space * 1  + '}')
             else:
                 data.append(space * 1  + '},')
@@ -707,9 +718,8 @@ def generate_bffh_actors(machines):
     return data
 
 
-# Aktoren-Verbindungen
-def generate_bffh_actorconnections(machines):
-
+# Verbindungen (type = "actor" oder "initiator")
+def generate_bffh_pluginconnections(machines, type):
     data = []
 
     # Anfang Datenstruktur
@@ -721,13 +731,14 @@ def generate_bffh_actorconnections(machines):
     for index, (id, m) in enumerate(machines.items()):
         specs = m.get_machine()
 
-        if len(specs["actor_id"]) > 0 and len(specs["actor_type"]) > 0:
-            actor_fullid = specs["actor_type"] + '_' + specs["actor_id"]
+        if len(specs["{}_id".format(type)]) > 0 and len(specs["{}_type"].format(type)) > 0:
+            plugin_fullid = specs["{}_type"] + '_' + specs["{}_id".format(type)]
 
             if index == last:
-                data.append(space * 1  + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' }')
+                "{ machine = \"{}\", {} = \"{}\" }".format(specs["fa_id"], type, plugin_fullid)
+                data.append(space * 1  + "{ machine = \"{}\", {} = \"{}\" }".format(specs["fa_id"], type, plugin_fullid))
             else:
-                data.append(space * 1  + '{ ' + f'machine = "{specs["fa_id"]}", actor = "{actor_fullid}"' + ' },')
+                data.append(space * 1  + "{ machine = \"{}\", {} = \"{}\" },".format(specs["fa_id"], type, plugin_fullid))
 
     # Ende Datenstruktur
     data.append(']')
@@ -752,10 +763,10 @@ def create_roles_csv(roles):
 
 # dhall-Dateien erzeugen
 
-def create_singledhall(export_roles, export_machines, export_actors, export_actorconnections):
+def create_singledhall(export_roles, export_machines, export_actors, export_actorconnections, export_initiators, export_initiatorconnections):
     print('|- Gesamten DHALL-Output exportieren')
 
-    input = [export_roles, export_machines, export_actors, export_actorconnections]
+    input = [export_roles, export_machines, export_actors, export_actorconnections, export_actorconnections, export_initiators, export_initiatorconnections]
 
     data = []
 
@@ -770,7 +781,8 @@ def create_singledhall(export_roles, export_machines, export_actors, export_acto
             case 1: data.append('machines =')
             case 2: data.append('actors =')
             case 3: data.append('export_actorconnections =')
-
+            case 4: data.append('initiators =')
+            case 5: data.append('export_initiatorconnections =')
 
         last = len(input[index_input]) - 1
         for index_seg, (el) in enumerate(i):
@@ -785,11 +797,11 @@ def create_singledhall(export_roles, export_machines, export_actors, export_acto
 
     write_file('output/bffh-dhall-data.txt', data)
 
-def create_multipledhalls(export_roles, export_machines, export_actors, export_actorconnections):
+def create_multipledhalls(export_roles, export_machines, export_actors, export_actorconnections, export_initiators, export_initiatorconnections):
 
 
 
-    input = [export_roles, export_machines, export_actors, export_actorconnections]
+    input = [export_roles, export_machines, export_actors, export_actorconnections, export_initiators, export_initiatorconnections]
 
     fa_dhall_directory = settings["fa_dhall_directory"].replace('\\', '/')
 
@@ -808,7 +820,8 @@ def create_multipledhalls(export_roles, export_machines, export_actors, export_a
             case 1: target_file = 'machines.dhall'
             case 2: target_file = 'actors.dhall'
             case 3: target_file = 'actorconnections.dhall'
-
+            case 4: target_file = 'initiator.dhall'
+            case 5: target_file = 'initiatorconnections.dhall'
         print(f'   |- Erzeuge {target_file}')
 
         # Im Output-Ordner
@@ -911,6 +924,8 @@ def display_machine(machine_object):
         print('      ' + p)
     print('actor_id = ' + scope["actor_id"])
     print('actor_type = ' + scope["actor_type"])
+    print('initiator_id = ' + scope["initiator_id"])
+    print('initiator_type = ' + scope["initiator_type"])
 
     print('\n[Alternativrolle: '+ role["name"] + ']')
     print('state = ' + str(machine_object.has_customrole()))
