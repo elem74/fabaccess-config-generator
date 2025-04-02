@@ -14,6 +14,11 @@ Dokumentation unter [https://elem74.github.io/fabaccess-config-generator-docs/](
 
 # Changelog
 
+## 2025.4
+**Neuerungen**
+ - Unterstützung für Initiatoren.
+ - Import einer bestehenden `bffh.dhall`.
+
 ## 2025.2
 **Neuerungen**
   - Option zur Erstellung eines Domänen-Managers (`manager_domain`).

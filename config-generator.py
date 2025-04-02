@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__version__ = '2025.2'
+__version__ = '2025.4'
 
 import os
 import sys
